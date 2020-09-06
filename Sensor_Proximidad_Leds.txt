@@ -1,0 +1,97 @@
+/*
+   ################
+   #   Lab15125   #
+   ################
+   
+   Editado por: Valentin Cea O.
+ 
+   Este codigo tiene como objetivo dar muestra de un uso practico de:
+   Sensor ultrasonico ping (parallax)
+
+   Según la hoja de datos de Parallax para el PING))), 
+   hay 73,746 microsegundos por pulgada o 29,034 microsegundos por centimetro 
+   (es decir, el sonido viaja a 1130 pies (o 34442.4cm) por segundo). 
+   Este da la distancia recorrida por el ping, ida y vuelta, 
+   por lo que dividimos por 2 para obtener la distancia del obstáculo.
+   ver: 
+   https://www.parallax.com/sites/default/files/downloads/28015-PING-Sensor-Product-Guide-v2.0.pdf
+        [En el PDF: TO_IN = 73_746' Inches ; TO_CM = 29_034' Centimeters ]
+
+   El circuito:
+     * +V conectado a sensor PING))) en +5V
+     * GND conectado a sensor PING))) en GND (ground)
+     * SIG conectado a sensor PING))) en pin digital 7
+     * LED conectado a pin 9 (PWM)
+
+   Funcion
+   readUltrasonicDistance(int triggerPin, int echoPin): Referencia obtenida de sensor ultrasonico tinkercad.com
+*/
+// Se declaran las variables en unidad de centimetros [cm] y pulgadas [inches]
+int inches = 0;
+int cm = 0;
+// Se define la funcion readUltrasonicDistance para calcular la distancia entre el cursos y el sensor
+long readUltrasonicDistance(int triggerPin, int echoPin)
+{
+  pinMode(triggerPin, OUTPUT);  // Inicializar LOW para limpiar trigger por 2 microsegundos
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  // Inicializar trigger en HIGH por 8 microsegundos para comenzar
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  // lectura de pin echo con el retorno de la señal
+  return pulseIn(echoPin, HIGH);
+}
+
+// Definicion de la funcion void setup y declaracion de la salida para cada variable Verde, Amarilla y Roja.
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(8, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(4, OUTPUT);
+}
+
+// Se define el ciclo Loop 
+void loop()
+{
+  // Se define la funcion "distancia" como una funcion flotante compuesta por 2 digitos
+  float distancia = 0.01723 * readUltrasonicDistance(2, 2);
+  // Se define a partir del rango operacional que si el cursor se encuentra entre los 336 y 200 se enciende
+  // solo el led rojo (pin 4)
+  
+  if((distancia <= 336) && (distancia >= 200)) {
+    digitalWrite(4, HIGH);
+    digitalWrite(7, LOW);
+    digitalWrite(8, LOW);
+  } 
+  // Si la condicion anterior no se cumple todas las luces permanecen apagadas (condicion solicitada)
+  else {
+    digitalWrite(4, LOW); 
+  }
+  // Se define que dentro del rango de los 200 y 100 se enciende el led amarillo (pin 7)
+  if((distancia < 200) && (distancia >= 100)) {
+    digitalWrite(7, HIGH);
+  } 
+  else {
+  // Si no se cumple la condicion anterior se apaga el led Amarillo (pin 7)
+    digitalWrite(7, LOW); 
+  }
+  // Se define que si la distancia es menor a 100, se enciende el led verde (pin 8)
+  if(distancia < 100) {
+    digitalWrite(8, HIGH);
+  } 
+  // Si no se cumple la condicion se apaga la led verde (pin 8)
+  else {
+    digitalWrite(8, LOW); 
+  }
+  // Se muestra de forma grafica la accion del sensor a medida que se mueve el cursor
+  Serial.print("distancia: ");
+  Serial.println(distancia+1.8);
+  
+  
+
+ // Tiempo de espera  
+  delay(10);
+}
